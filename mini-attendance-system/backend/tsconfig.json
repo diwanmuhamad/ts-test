@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    /* Core */
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+
+    /* Output */
+    "outDir": "dist",
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    /* Node compatibility */
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    /* Safety checks */
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    /* Quality */
+    "skipLibCheck": true
+  },
+  "include": ["src", "auth-service", "attendance-service", "report-worker"],
+  "exclude": ["node_modules", "dist"]
+}

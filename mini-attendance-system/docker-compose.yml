@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -17,18 +17,34 @@ services:
     ports:
       - "6379:6379"
 
+  migrate:
+    build:
+      context: ./backend
+    working_dir: /app
+    command:
+      ["sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma"]
+    environment:
+      DATABASE_URL: postgres://test:test@postgres:5432/attendance
+    depends_on:
+      postgres:
+        condition: service_started
+
   auth-service:
     build:
       context: ./backend
     working_dir: /app
-    command: ["sh","-c","npm run start:auth"]
+    command: ["sh", "-c", "npm run start:auth"]
     environment:
       DATABASE_URL: postgres://test:test@postgres:5432/attendance
       REDIS_URL: redis://redis:6379
       JWT_SECRET: supersecret
     depends_on:
-      - postgres
-      - redis
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
     ports:
       - "4001:4001"
 
@@ -36,14 +52,18 @@ services:
     build:
       context: ./backend
     working_dir: /app
-    command: ["sh","-c","npm run start:attendance"]
+    command: ["sh", "-c", "npm run start:attendance"]
     environment:
       DATABASE_URL: postgres://test:test@postgres:5432/attendance
       REDIS_URL: redis://redis:6379
       JWT_SECRET: supersecret
     depends_on:
-      - postgres
-      - redis
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
     ports:
       - "4002:4002"
 
@@ -51,14 +71,18 @@ services:
     build:
       context: ./backend
     working_dir: /app
-    command: ["sh","-c","npm run start:report-worker"]
+    command: ["sh", "-c", "npm run start:report-worker"]
     environment:
       DATABASE_URL: postgres://test:test@postgres:5432/attendance
       REDIS_URL: redis://redis:6379
       JWT_SECRET: supersecret
     depends_on:
-      - postgres
-      - redis
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
     ports:
       - "4003:4003"
 

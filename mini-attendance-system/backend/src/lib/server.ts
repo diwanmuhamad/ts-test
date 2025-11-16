@@ -31,7 +31,13 @@ export const createServer = () => {
         },
       },
       "/auth/login": {
-        post: { summary: "Login", responses: { "200": { description: "OK" } } },
+        post: {
+          summary: "Login",
+          requestBody: {
+            content: { "application/json": { schema: { type: "object" } } },
+          },
+          responses: { "200": { description: "OK" } },
+        },
       },
       "/attendance/checkin": {
         post: {

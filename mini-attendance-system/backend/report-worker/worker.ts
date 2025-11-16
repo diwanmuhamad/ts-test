@@ -107,7 +107,7 @@ async function processCheckOut(event: any) {
     where: { userId_date: { userId, date: day } },
     data: {
       totalHours,
-      status: getStatusFromCheckout(totalHours),
+      status: getStatusFromCheckout(checkInTime, totalHours),
     },
   });
 
@@ -121,6 +121,12 @@ function getStatusFromCheckIn(time: string) {
 }
 
 // Leaving early (< 8 hours) = early_leave
-function getStatusFromCheckout(hours: number) {
-  return hours < 8 ? "early_leave" : "present";
+function getStatusFromCheckout(checkInTime: any, hours: number) {
+  const t_checkin = new Date(checkInTime).getHours();
+
+  if (t_checkin > 9) return "late";
+  if (t_checkin <= 9 && hours >= 8) return "present";
+  if (t_checkin <= 9 && hours < 8) return "early_leave";
+
+  return "N/A";
 }

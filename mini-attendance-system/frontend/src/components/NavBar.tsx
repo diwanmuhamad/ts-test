@@ -1,6 +1,12 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { AppBar, Toolbar, Button, Box } from "@mui/material";
+import {
+  Home,
+  Dashboard as DashboardIcon,
+  BarChart,
+  Logout,
+} from "@mui/icons-material";
 
 export default function NavBar() {
   const token = useAuthStore((s) => s.token);
@@ -13,19 +19,64 @@ export default function NavBar() {
   };
 
   return (
-    <nav style={{ padding: 12, borderBottom: "1px solid #eee" }}>
-      <Link to="/">Home</Link> |{" "}
-      {token ? (
-        <>
-          <Link to="/dashboard">Dashboard</Link> |{" "}
-          <Link to="/reports">Reports</Link> |{" "}
-          <button onClick={logout}>Logout</button>
-        </>
-      ) : (
-        <>
-          <Link to="/login">Login</Link> | <Link to="/register">Register</Link>
-        </>
-      )}
-    </nav>
+    <AppBar position="static" sx={{ backgroundColor: "#1976d2" }}>
+      <Toolbar>
+        <Box sx={{ display: "flex", gap: 2, flex: 1 }}>
+          <Button
+            color="inherit"
+            startIcon={<Home />}
+            onClick={() => navigate("/")}
+            sx={{ textTransform: "none" }}
+          >
+            Home
+          </Button>
+          {token ? (
+            <>
+              <Button
+                color="inherit"
+                startIcon={<DashboardIcon />}
+                onClick={() => navigate("/dashboard")}
+                sx={{ textTransform: "none" }}
+              >
+                Dashboard
+              </Button>
+              <Button
+                color="inherit"
+                startIcon={<BarChart />}
+                onClick={() => navigate("/reports")}
+                sx={{ textTransform: "none" }}
+              >
+                Reports
+              </Button>
+              <Button
+                color="inherit"
+                startIcon={<Logout />}
+                onClick={logout}
+                sx={{ ml: "auto", textTransform: "none" }}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                color="inherit"
+                onClick={() => navigate("/login")}
+                sx={{ textTransform: "none" }}
+              >
+                Login
+              </Button>
+              <Button
+                color="inherit"
+                onClick={() => navigate("/register")}
+                sx={{ textTransform: "none" }}
+              >
+                Register
+              </Button>
+            </>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }

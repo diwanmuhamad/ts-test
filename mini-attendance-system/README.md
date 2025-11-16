@@ -4,11 +4,20 @@ This repo provides a mini attendance system with Auth, Attendance, and Report Wo
 
 Quick start (using Docker Compose):
 
-1. Build and start services:
+1. Build and start backend:
 
-```powershell
+```
 cd mini-attendance-system
 docker-compose up --build
+
+```
+
+Start frontend:
+
+```
+cd frontend
+npm install
+npm run dev
 ```
 
 2. Endpoints:

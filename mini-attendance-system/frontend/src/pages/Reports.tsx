@@ -1,8 +1,24 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchReports } from "../services/attendance";
+import {
+  Container,
+  Paper,
+  Box,
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Chip,
+} from "@mui/material";
+import { Download, Refresh } from "@mui/icons-material";
 
-// Small client-side CSV converter to avoid using Node-only packages in the browser
+// Small client-side CSV converter
 function toCsv(rows: Array<Record<string, any>>) {
   if (!rows || rows.length === 0) return "";
   const headers = Object.keys(rows[0]);
@@ -21,9 +37,28 @@ function toCsv(rows: Array<Record<string, any>>) {
   return lines.join("\n");
 }
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "present":
+      return "success";
+    case "late":
+      return "warning";
+    case "early_leave":
+      return "info";
+    case "absent":
+      return "error";
+    default:
+      return "default";
+  }
+};
+
 export default function Reports() {
   const [status, setStatus] = useState("");
-  const { data: rawData, refetch } = useQuery({
+  const {
+    data: rawData,
+    refetch,
+    isLoading,
+  } = useQuery({
     queryKey: ["reports", status],
     queryFn: () => fetchReports({ status }),
     enabled: true,
@@ -43,47 +78,104 @@ export default function Reports() {
   };
 
   return (
-    <div style={{ padding: 16 }}>
-      <h2>Reports</h2>
-      <div>
-        <label>Filter by status:</label>
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All</option>
-          <option value="present">Present</option>
-          <option value="late">Late</option>
-          <option value="early_leave">Early Leave</option>
-          <option value="absent">Absent</option>
-        </select>
-        <button onClick={() => refetch()}>Refresh</button>
-        <button onClick={exportCsv}>Export CSV</button>
-      </div>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{ mb: 3, fontWeight: "bold" }}
+        >
+          Attendance Reports
+        </Typography>
 
-      <table
-        style={{ width: "100%", marginTop: 12, borderCollapse: "collapse" }}
-      >
-        <thead>
-          <tr>
-            <th style={{ border: "1px solid #ddd" }}>User</th>
-            <th style={{ border: "1px solid #ddd" }}>Date</th>
-            <th style={{ border: "1px solid #ddd" }}>Status</th>
-            <th style={{ border: "1px solid #ddd" }}>Total Hours</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(data || []).map((r: any) => (
-            <tr key={r.id}>
-              <td style={{ border: "1px solid #ddd" }}>{r.userId}</td>
-              <td style={{ border: "1px solid #ddd" }}>
-                {new Date(r.date).toLocaleDateString()}
-              </td>
-              <td style={{ border: "1px solid #ddd" }}>{r.status}</td>
-              <td style={{ border: "1px solid #ddd" }}>
-                {r.totalHours ?? "-"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            mb: 3,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
+          <TextField
+            select
+            label="Filter by Status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            SelectProps={{
+              native: true,
+            }}
+            sx={{ minWidth: 200 }}
+          >
+            <option value="">All</option>
+            <option value="present">Present</option>
+            <option value="late">Late</option>
+            <option value="early_leave">Early Leave</option>
+            <option value="absent">Absent</option>
+          </TextField>
+
+          <Button
+            variant="outlined"
+            startIcon={<Refresh />}
+            onClick={() => refetch()}
+            disabled={isLoading}
+          >
+            Refresh
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<Download />}
+            onClick={exportCsv}
+            disabled={data.length === 0}
+          >
+            Export CSV
+          </Button>
+        </Box>
+
+        <TableContainer>
+          <Table>
+            <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold" }}>User ID</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Date</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Total Hours</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} sx={{ textAlign: "center", py: 3 }}>
+                    No reports found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                data.map((r: any) => (
+                  <TableRow
+                    key={r.id}
+                    sx={{ "&:hover": { backgroundColor: "#f9f9f9" } }}
+                  >
+                    <TableCell>{r.userId}</TableCell>
+                    <TableCell>
+                      {new Date(r.date).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={r.status}
+                        color={getStatusColor(r.status)}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {r.totalHours ? r.totalHours.toFixed(2) : "-"} hrs
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Container>
   );
 }

@@ -1,9 +1,8 @@
 # Meeting-room-scheduler
 
-1. Start frontend:
+1. Start application:
 
 ```
-cd frontend
 npm install
-npm run dev
+npm run start
 ```

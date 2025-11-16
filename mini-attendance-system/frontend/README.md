@@ -15,59 +15,40 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
+````js
 export default defineConfig([
   globalIgnores(['dist']),
   {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+    # Mini Attendance Frontend
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+    This is a small React + Vite frontend for the Mini Attendance System technical test.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+    Features implemented:
+    - Login / Register (token stored in `localStorage`)
+    - Check-in and Check-out buttons
+    - Reports view with filter by status and CSV export
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+    Environment
+    - Defaults to backend `http://localhost:4002` for attendance API. You can change `VITE_API_BASE` in `.env` at the project root.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+    Run locally
+    1. Install deps:
+    ```powershell
+    cd frontend
+    npm install
+    ```
+    2. Run dev server:
+    ```powershell
+    npm run dev
+    ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+    Notes
+    - The frontend uses `axios` with an Authorization header populated from `localStorage`.
+    - Auth endpoints are on `http://localhost:4001` (register/login) and attendance endpoints on `http://localhost:4002`.
+    - Reports endpoint in the backend must exist to fetch reports; if not present, implement `/reports` in the backend to return `dailyReport` entries.
+
+    Next steps I can help with:
+    - Add a Dockerfile for the frontend and wire it into `docker-compose.yml`.
+    - Expand UI with user-friendly components and times formatting.
+    - Add unit tests for critical components.
+````

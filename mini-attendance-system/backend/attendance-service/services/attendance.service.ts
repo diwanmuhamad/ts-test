@@ -87,3 +87,15 @@ export const checkOut = async (userId: string) => {
 
   return updated;
 };
+
+export const fetchReports = async (filter?: { status?: string }) => {
+  const where: any = {};
+  if (filter?.status) where.status = filter.status;
+
+  const reports = await prisma.dailyReport.findMany({
+    where,
+    orderBy: { date: "desc" },
+  });
+
+  return reports;
+};

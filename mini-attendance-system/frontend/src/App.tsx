@@ -1,35 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import Reports from "./pages/Reports";
+import NavBar from "./components/NavBar";
+import { useAuthStore } from "./store/authStore";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const token = useAuthStore((s: any) => s.token);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <NavBar />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+          }
+        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/dashboard"
+          element={token ? <Dashboard /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/reports"
+          element={token ? <Reports /> : <Navigate to="/login" />}
+        />
+      </Routes>
+    </div>
+  );
 }
-
-export default App

@@ -21,3 +21,16 @@ export const checkOut = async (
     res.status(400).json({ success: false, message: err.message });
   }
 };
+
+export const getReports = async (
+  req: Request & { user?: any },
+  res: Response
+) => {
+  try {
+    const { status } = req.query as any;
+    const reports = await attendanceService.fetchReports({ status });
+    res.json({ success: true, data: reports });
+  } catch (err: any) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};

@@ -1,9 +1,10 @@
 import { redis } from "./redis";
 import { prisma } from "./prisma";
 import cron from "node-cron";
+import { logger } from "../src/utils/logger";
 
 export async function startWorker() {
-  console.log("Report Worker listening for attendance events...");
+  logger.info("Report Worker listening for attendance events...");
 
   try {
     await redis.subscribe("CHECK_IN", async (message) => {
@@ -11,7 +12,7 @@ export async function startWorker() {
       await processCheckIn(event);
     });
   } catch (error) {
-    console.error("Error processing check-in:", error);
+    logger.error({ err: error }, "Error subscribing to CHECK_IN");
   }
 
   try {
@@ -20,7 +21,7 @@ export async function startWorker() {
       await processCheckOut(event);
     });
   } catch (error) {
-    console.error("Error processing check-out:", error);
+    logger.error({ err: error }, "Error subscribing to CHECK_OUT");
   }
 
   startAbsentChecker();
@@ -30,10 +31,10 @@ export async function startWorker() {
    DAILY ABSENT CHECKER
 -------------------- */
 function startAbsentChecker() {
-  console.log("ABSENT checker scheduled (runs daily at 00:05)...");
+  logger.info("ABSENT checker scheduled (runs daily at 00:05)...");
 
   cron.schedule("5 0 * * *", async () => {
-    console.log("Running ABSENT checker...");
+    logger.info("Running ABSENT checker...");
 
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -61,11 +62,7 @@ function startAbsentChecker() {
           },
         });
 
-        console.log(
-          `Marked ABSENT for user ${user.id} (date: ${yesterday
-            .toISOString()
-            .slice(0, 10)})`
-        );
+        logger.info({ userId: user.id, date: yesterday }, "Marked ABSENT");
       }
     }
   });
@@ -91,7 +88,7 @@ async function processCheckIn(event: any) {
     },
   });
 
-  console.log(`Processed CHECK-IN for user ${userId}`);
+  logger.info({ userId }, "Processed CHECK-IN");
 }
 
 /* -------------------
@@ -114,7 +111,7 @@ async function processCheckOut(event: any) {
     },
   });
 
-  console.log(`Processed CHECK-OUT for user ${userId}`);
+  logger.info({ userId, totalHours }, "Processed CHECK-OUT");
 }
 
 // Check-in after 9:00 = LATE

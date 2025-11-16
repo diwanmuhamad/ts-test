@@ -1,6 +1,7 @@
 import express from "express";
 import { initRedis } from "./redis";
 import { startWorker } from "./worker";
+import { logger } from "../src/utils/logger";
 
 const app = express();
 
@@ -13,7 +14,7 @@ async function bootstrap() {
   await startWorker();
 
   app.listen(4003, () => {
-    console.log("Report Worker running on port 4003");
+    logger.info({ port: 4003 }, "Report Worker running");
   });
 }
 

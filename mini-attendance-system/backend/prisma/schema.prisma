@@ -1,5 +1,8 @@
 generator client {
   provider = "prisma-client-js"
+  // Include the linux-musl binary so Prisma generates an engine compatible with
+  // alpine-based images (musl). Adjust if you use a different base image.
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {

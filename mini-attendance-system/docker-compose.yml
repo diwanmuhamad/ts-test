@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: attendance
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  auth-service:
+    build:
+      context: ./backend
+    working_dir: /app
+    command: ["sh","-c","npm run start:auth"]
+    environment:
+      DATABASE_URL: postgres://test:test@postgres:5432/attendance
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: supersecret
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "4001:4001"
+
+  attendance-service:
+    build:
+      context: ./backend
+    working_dir: /app
+    command: ["sh","-c","npm run start:attendance"]
+    environment:
+      DATABASE_URL: postgres://test:test@postgres:5432/attendance
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: supersecret
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "4002:4002"
+
+  report-worker:
+    build:
+      context: ./backend
+    working_dir: /app
+    command: ["sh","-c","npm run start:report-worker"]
+    environment:
+      DATABASE_URL: postgres://test:test@postgres:5432/attendance
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: supersecret
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "4003:4003"
+
+volumes:
+  pgdata:
